@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 8.1.1">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Muse","darkmode":true,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="前情概要因为最近流量达量降速到 1Mbps，用 Dsub 连接玩客云上部署的 navidrome 服务听音乐经常会出现卡顿，难以忍受。我想到 navidrome 是有转码功能的。遂有了这片文章。 准备阶段当然的第一步，要准备好 navidrome 的 docker 镜像。因为出于安全考虑 navidrome 在 web 页面的转码设置被禁用了，所以需要在容器创建时指定环境变量ND_ENABLETR">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于玩客云(s805)部署的navidrome服务的转码设置">
+<meta property="og:url" content="http://example.com/2026/04/23/%E5%9F%BA%E4%BA%8E%E7%8E%A9%E5%AE%A2%E4%BA%91-s805-%E9%83%A8%E7%BD%B2%E7%9A%84navidrome%E6%9C%8D%E5%8A%A1%E7%9A%84%E8%BD%AC%E7%A0%81%E8%AE%BE%E7%BD%AE/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="前情概要因为最近流量达量降速到 1Mbps，用 Dsub 连接玩客云上部署的 navidrome 服务听音乐经常会出现卡顿，难以忍受。我想到 navidrome 是有转码功能的。遂有了这片文章。 准备阶段当然的第一步，要准备好 navidrome 的 docker 镜像。因为出于安全考虑 navidrome 在 web 页面的转码设置被禁用了，所以需要在容器创建时指定环境变量ND_ENABLETR">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2026-04-23T11:25:59.000Z">
+<meta property="article:modified_time" content="2026-04-23T12:16:32.711Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://example.com/2026/04/23/%E5%9F%BA%E4%BA%8E%E7%8E%A9%E5%AE%A2%E4%BA%91-s805-%E9%83%A8%E7%BD%B2%E7%9A%84navidrome%E6%9C%8D%E5%8A%A1%E7%9A%84%E8%BD%AC%E7%A0%81%E8%AE%BE%E7%BD%AE/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://example.com/2026/04/23/%E5%9F%BA%E4%BA%8E%E7%8E%A9%E5%AE%A2%E4%BA%91-s805-%E9%83%A8%E7%BD%B2%E7%9A%84navidrome%E6%9C%8D%E5%8A%A1%E7%9A%84%E8%BD%AC%E7%A0%81%E8%AE%BE%E7%BD%AE/","path":"2026/04/23/基于玩客云-s805-部署的navidrome服务的转码设置/","title":"基于玩客云(s805)部署的navidrome服务的转码设置"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>基于玩客云(s805)部署的navidrome服务的转码设置 | Hexo</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Hexo</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%89%8D%E6%83%85%E6%A6%82%E8%A6%81"><span class="nav-number">1.</span> <span class="nav-text">前情概要</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%87%86%E5%A4%87%E9%98%B6%E6%AE%B5"><span class="nav-number">2.</span> <span class="nav-text">准备阶段</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E6%95%B0%E8%AF%B4%E6%98%8E"><span class="nav-number">2.1.</span> <span class="nav-text">参数说明</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AF%E8%AE%BE%E7%BD%AE"><span class="nav-number">3.</span> <span class="nav-text">客户端设置</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9C%80%E5%90%8E"><span class="nav-number">4.</span> <span class="nav-text">最后</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">John Doe</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">4</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2026/04/23/%E5%9F%BA%E4%BA%8E%E7%8E%A9%E5%AE%A2%E4%BA%91-s805-%E9%83%A8%E7%BD%B2%E7%9A%84navidrome%E6%9C%8D%E5%8A%A1%E7%9A%84%E8%BD%AC%E7%A0%81%E8%AE%BE%E7%BD%AE/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="John Doe">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="基于玩客云(s805)部署的navidrome服务的转码设置 | Hexo">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          基于玩客云(s805)部署的navidrome服务的转码设置
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+      
+
+      <time title="Created: 2026-04-23 19:25:59 / Modified: 20:16:32" itemprop="dateCreated datePublished" datetime="2026-04-23T19:25:59+08:00">2026-04-23</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="前情概要"><a href="#前情概要" class="headerlink" title="前情概要"></a>前情概要</h1><p>因为最近流量达量降速到 1Mbps，用 Dsub 连接玩客云上部署的 navidrome 服务听音乐经常会出现卡顿，难以忍受。我想到 navidrome 是有转码功能的。遂有了这片文章。</p>
+<h1 id="准备阶段"><a href="#准备阶段" class="headerlink" title="准备阶段"></a>准备阶段</h1><p>当然的第一步，要准备好 navidrome 的 docker 镜像。因为出于安全考虑 navidrome 在 web 页面的转码设置被禁用了，所以需要在容器创建时指定环境变量<br>ND_ENABLETRANSCODINGCONFIG&#x3D;true。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">suyue@onecloud:/mnt/disk0/docker/navidrome$sudo docker run -d \</span><br><span class="line">--name navidrome \</span><br><span class="line">--restart unless-stopped \</span><br><span class="line">-p 4533:4533 \</span><br><span class="line">--user 1000:1000 \</span><br><span class="line">-v $(pwd)/data:/data \</span><br><span class="line">-v $(pwd)/music:/music:ro \</span><br><span class="line">-e ND_LOGLEVEL=info \</span><br><span class="line">-e ND_SCANSHEDULE=1h \</span><br><span class="line">-e ND_ENABLETRANSCODINGCONFIG=true \</span><br><span class="line">-e ND_CONFIG=/data/navidrome.toml \</span><br><span class="line">deluan/navidrome:develop</span><br></pre></td></tr></table></figure>
+<h2 id="参数说明"><a href="#参数说明" class="headerlink" title="参数说明"></a>参数说明</h2><ul>
+<li>–user 1000:1000 : 为了避免权限问题指定用户和组</li>
+<li>-e ND_CONFIG&#x3D;&#x2F;data&#x2F;navidrome.toml : 可选，指定 navidrome 配置文件的位置，方便修改配置</li>
+<li>-e ND_ENABLETRANSCODIGCONFIG&#x3D;true :  开启 navidrome 的转码</li>
+</ul>
+<blockquote>
+<p>[!NOTE]+ 小插曲<br>可能因为当时拉取的镜像的问题，当服务上线后，navidrome 服务器经常会出现断连,同时专辑封面显示不正常，音乐没法正常播放，改为更早拉取下来的镜像后，恢复正常。可能正是因为镜像本身有问题，作者也是在之后连续更新了好几个镜像。参数正确，权限没问题的情况下，服务没法正常运行，可能就是镜像本身的问题了。</p>
+</blockquote>
+<h1 id="客户端设置"><a href="#客户端设置" class="headerlink" title="客户端设置"></a>客户端设置</h1><p>主要是两种客户端，一个是 navidrome 的 web端，另一个就是 android 平台的 Dsub了，分别介绍。</p>
+<ul>
+<li>web 端<br>右上角的 Setting -&gt; Players -&gt; NavidromeUI [Chrome&#x2F;Windows] ,选择需要的音频格式和比特率，保存。</li>
+<li>Dsub 端<br>Settings -&gt; Cache&#x2F;Network -&gt; Max Audio Bitrate - Mobile，选择对应的码率即可。</li>
+</ul>
+<h1 id="最后"><a href="#最后" class="headerlink" title="最后"></a>最后</h1><p>接下来，就可以快乐的享受音乐了，即使只有 1Mbps 也能无卡顿的播放了。虽然专辑的初次加载可能需要一点时间，但是相比于中间的卡顿，是可接受的！</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2026/04/14/%E6%B5%8B%E8%AF%95%E7%A4%BA%E4%BE%8B/" rel="prev" title="测试示例">
+                  <i class="fa fa-angle-left"></i> 测试示例
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">John Doe</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>
