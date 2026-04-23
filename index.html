@@ -190,7 +190,7 @@
       <span class="post-meta-item-text">Posted on</span>
       
 
-      <time title="Created: 2026-04-23 19:25:59 / Modified: 20:18:33" itemprop="dateCreated datePublished" datetime="2026-04-23T19:25:59+08:00">2026-04-23</time>
+      <time title="Created: 2026-04-23 19:25:59 / Modified: 20:19:27" itemprop="dateCreated datePublished" datetime="2026-04-23T19:25:59+08:00">2026-04-23</time>
     </span>
 
   
@@ -204,7 +204,7 @@
     
     <div class="post-body" itemprop="articleBody">
           <h1 id="前情概要"><a href="#前情概要" class="headerlink" title="前情概要"></a>前情概要</h1><p>因为最近流量达量降速到 1Mbps，用 Dsub 连接玩客云上部署的 navidrome 服务听音乐经常会出现卡顿，难以忍受。我想到 navidrome 是有转码功能的。遂有了这片文章。</p>
-<h1 id="准备阶段"><a href="#准备阶段" class="headerlink" title="准备阶段"></a>准备阶段</h1><p>当然的第一步，要准备好 navidrome 的 docker 镜像。因为出于安全考虑 navidrome 在 web 页面的转码设置被禁用了，所以需要在容器创建时指定环境变量<br>ND_ENABLETRANSCODINGCONFIG&#x3D;true。</p>
+<h1 id="准备阶段"><a href="#准备阶段" class="headerlink" title="准备阶段"></a>准备阶段</h1><p>当然的第一步，要准备好 navidrome 的 docker 镜像。因为出于安全考虑 navidrome 在 web 页面的转码设置被禁用了，所以需要在容器创建时指定环境变量ND_ENABLETRANSCODINGCONFIG&#x3D;true。</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">suyue@onecloud:/mnt/disk0/docker/navidrome$sudo docker run -d \</span><br><span class="line">--name navidrome \</span><br><span class="line">--restart unless-stopped \</span><br><span class="line">-p 4533:4533 \</span><br><span class="line">--user 1000:1000 \</span><br><span class="line">-v $(pwd)/data:/data \</span><br><span class="line">-v $(pwd)/music:/music:ro \</span><br><span class="line">-e ND_LOGLEVEL=info \</span><br><span class="line">-e ND_SCANSHEDULE=1h \</span><br><span class="line">-e ND_ENABLETRANSCODINGCONFIG=true \</span><br><span class="line">-e ND_CONFIG=/data/navidrome.toml \</span><br><span class="line">deluan/navidrome:develop</span><br></pre></td></tr></table></figure>
 <h2 id="参数说明"><a href="#参数说明" class="headerlink" title="参数说明"></a>参数说明</h2><ul>
 <li>–user 1000:1000 : 为了避免权限问题指定用户和组</li>
@@ -212,7 +212,7 @@
 <li>-e ND_ENABLETRANSCODIGCONFIG&#x3D;true :  开启 navidrome 的转码</li>
 </ul>
 <blockquote>
-<p>[!NOTE]+ 小插曲<br>可能因为当时拉取的镜像的问题，当服务上线后，navidrome 服务器经常会出现断连,同时专辑封面显示不正常，音乐没法正常播放，改为更早拉取下来的镜像后，恢复正常。可能正是因为镜像本身有问题，作者也是在之后连续更新了好几个镜像。参数正确，权限没问题的情况下，服务没法正常运行，可能就是镜像本身的问题了。</p>
+<p>小插曲<br>可能因为当时拉取的镜像的问题，当服务上线后，navidrome 服务器经常会出现断连,同时专辑封面显示不正常，音乐没法正常播放，改为更早拉取下来的镜像后，恢复正常。可能正是因为镜像本身有问题，作者也是在之后连续更新了好几个镜像。参数正确，权限没问题的情况下，服务没法正常运行，可能就是镜像本身的问题了。</p>
 </blockquote>
 <h1 id="客户端设置"><a href="#客户端设置" class="headerlink" title="客户端设置"></a>客户端设置</h1><p>主要是两种客户端，一个是 navidrome 的 web端，另一个就是 android 平台的 Dsub了，分别介绍。</p>
 <ul>
